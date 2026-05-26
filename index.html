@@ -658,267 +658,83 @@ const SRV_KEY = (typeof window!=='undefined' && window.NVIDIA_API_KEY) || HARD_K
 // ══════════════════════════════════════════
 // MODELS — sorted ascending by param size
 // ══════════════════════════════════════════
-const MODELS=[
-  // ── Tiny autonomous driving / perception ──
-  /* {id:"nvidia/streampetr",name:"StreamPETR",params:"~50M",pv:.05,
-   desc:"3D object detection for autonomous driving. Sparse temporal object queries propagated across frames.",
-   tags:["autonomous","vision"]},
-  {id:"nvidia/bevformer",name:"BEVFormer",params:"~50M",pv:.05,
-   desc:"Bird's-eye-view 3D perception transformer for self-driving. Multi-frame spatial understanding.",
-   tags:["autonomous","vision"]},
-  {id:"nvidia/sparsedrive",name:"SparseDrive",params:"~100M",pv:.1,
-   desc:"End-to-end autonomous driving: perception + prediction + planning in a single sparse model.",
-   tags:["autonomous"]}, */
-
-  // ── Embedding / RAG ──
-  /* {id:"nvidia/llama-3_2-nemoretriever-300m-embed-v1",name:"NemoRetriever 300M Embed",params:"300M",pv:.3,
-   desc:"Multilingual cross-lingual text embedding for RAG. 26 languages, long-document QA retrieval.",
-   tags:["embedding"]}, */
-
-  // ── ~0.4B ──
-  /* {id:"nvidia/gliner-pii",name:"GLiNER PII",params:"~0.4B",pv:.4,
-   desc:"Detects PII in text: names, emails, phone numbers, addresses. Privacy & compliance tool.",
-   tags:["safety","reasoning"]}, */
-
-  // ── ~1B TTS ──
-  /* {id:"nvidia/magpie-tts-flow",name:"Magpie TTS Flow",params:"~1B",pv:1,
-   desc:"Expressive text-to-speech from a short audio sample. Voice cloning for voice agents.",
-   tags:["tts","audio"]},
-  {id:"nvidia/magpie-tts-zeroshot",name:"Magpie TTS Zero-Shot",params:"~1B",pv:1,
-   desc:"Zero-shot TTS — natural speech from any text, no per-speaker training required.",
-   tags:["tts","audio"]}, */
-
-  // ── ~2B ──
-  {id:"google/gemma-3n-e2b-it",name:"Gemma 3N E2B",params:"~2B eff.",pv:2,
-   desc:"Ultra-lightweight Google edge AI. Accepts text + audio + image. Resource-constrained devices.",
-   tags:["vision","audio","reasoning"]},
-  /* {id:"nvidia/cosmos-transfer2.5-2b",name:"Cosmos Transfer 2.5",params:"2B",pv:2,
-   desc:"Physics-aware video world state generation using text prompts + multiple spatial control inputs.",
-   tags:["video","autonomous"]}, */
-
-  // ── ~3-4B ──
-  {id:"microsoft/phi-4-mini-flash-reasoning",name:"Phi-4 Mini Flash",params:"~3.8B",pv:3.8,
-   desc:"Microsoft's lightweight reasoning model: math, logic, code. Designed for low-latency edge devices.",
-   tags:["reasoning","math","coding"]},
-  /* {id:"nvidia/riva-translate-4b-instruct-v1_1",name:"Riva Translate 4B",params:"4B",pv:4,
-   desc:"Neural machine translation across 12 languages with few-shot prompt support. High accuracy NMT.",
-   tags:["translation"]},
-  {id:"nvidia/nemotron-content-safety-reasoning-4b",name:"Nemotron Safety 4B",params:"4B",pv:4,
-   desc:"Safety model with chain-of-thought reasoning. Enforces domain-specific content policies.",
-   tags:["safety","reasoning"]}, */
-  {id:"google/gemma-3n-e4b-it",name:"Gemma 3N E4B",params:"~4B eff.",pv:4,
-   desc:"Google edge AI: text + audio + image input. Stronger than E2B while staying lightweight.",
-   tags:["vision","audio","reasoning"]},
-
-  // ── ~5B ──
-  {id:"microsoft/phi-4-multimodal-instruct",name:"Phi-4 Multimodal",params:"~5B",pv:5,
-   desc:"Microsoft open multimodal: high-quality reasoning from BOTH images and audio. Edge-capable.",
-   tags:["vision","audio","reasoning"]},
-  /* {id:"nvidia/cosmos-predict1-5b",name:"Cosmos Predict 1",params:"5B",pv:5,
-   desc:"Predicts future physics-aware video frames from image/short video. Physical AI simulation.",
-   tags:["video","autonomous"]}, */
-
-  // ── 7B ──
-  /* {id:"nvidia/nv-embedcode-7b-v1",name:"NV-EmbedCode 7B",params:"7B",pv:7,
-   desc:"Mistral-based code embedding model. Text, code, and hybrid query retrieval for code RAG.",
-   tags:["embedding","coding"]},
-  {id:"nvidia/cosmos-reason1-7b",name:"Cosmos Reason 1 (7B)",params:"7B",pv:7,
-   desc:"Reasoning VLM for physical AI and robotics. Understands physics and causality from video/images.",
-   tags:["reasoning","vision","autonomous"]},
-  {id:"nvidia/cosmos-transfer1-7b",name:"Cosmos Transfer 1 (7B)",params:"7B",pv:7,
-   desc:"Physics-aware video world state generation from text + spatial controls. Physical AI / sim.",
-   tags:["video","autonomous"]}, */
-
-  // ── 8B ──
-  {id:"ibm/granite-3.3-8b-instruct",name:"Granite 3.3 8B",params:"8B",pv:8,
-   desc:"IBM compact LM: reasoning, coding, instruction-following for enterprise. Efficient and reliable.",
-   tags:["coding","reasoning"]},
-  {id:"Marin/marin-8b-instruct",name:"Marin 8B",params:"8B",pv:8,
-   desc:"Open model trained on open datasets. Strong reasoning, math, science. Fully transparent.",
-   tags:["reasoning","math"]},
-  /* {id:"nvidia/llama-3.1-nemotron-safety-guard-8b-v3",name:"Nemotron Safety Guard 8B",params:"8B",pv:8,
-   desc:"Multilingual content safety & moderation. Filters harmful content for any LLM pipeline.",
-   tags:["safety"]}, */
-
-  // ── 11-12B ──
-  {id:"Speakleash/bielik-11b-v2.6-instruct",name:"Bielik 11B (Polish)",params:"11B",pv:11,
-   desc:"State-of-the-art Polish language model. Text generation, Q&A, chatbots in Polish language.",
-   tags:["reasoning"]},
-  /* {id:"meta/llama-guard-4-12b",name:"Llama Guard 4 12B",params:"12B",pv:12,
-   desc:"Meta's multi-modal safety classifier. Checks input prompts AND output responses for harmful content.",
-   tags:["safety","vision"]}, */
-
-  // ── 17B×16 MoE ──
-  {id:"meta/llama-4-scout-17b-16e-instruct",name:"Llama 4 Scout 17B×16E",params:"17B×16 MoE",pv:17*16,
-   desc:"Meta's multimodal, multilingual 16-expert MoE. Fast and efficient for diverse tasks.",
-   tags:["vision","reasoning"]},
-
-  // ── 24B ──
-  {id:"mistralai/magistral-small-2506",name:"Magistral Small 2506",params:"~24B",pv:24,
-   desc:"High-performance reasoning model optimized for efficiency and edge deployment. Coding + math.",
-   tags:["reasoning","coding","math"]},
-  {id:"mistralai/mistral-small-3.1-24b-instruct-2503",name:"Mistral Small 3.1 24B",params:"24B",pv:24,
-   desc:"Efficient multimodal — multilingual, image understanding, fast responses for diverse tasks.",
-   tags:["vision","reasoning"]},
-
-  // ── 27B ──
-  {id:"google/gemma-3-27b-it",name:"Gemma 3 27B",params:"27B",pv:27,
-   desc:"Google's cutting-edge open multimodal. High-quality reasoning from images, multilingual text.",
-   tags:["vision","reasoning"]},
-
-  // ── 32B ──
-  {id:"qwen/qwq-32b",name:"QwQ 32B",params:"32B",pv:32,
-   desc:"Powerful thinking model for hard problems: math olympiad, competitive coding, multi-step logic.",
-   tags:["reasoning","math","coding"]},
-
-  // ── 36B ──
-  {id:"bytedance/seed-oss-36b-instruct",name:"Seed OSS 36B",params:"36B",pv:36,
-   desc:"ByteDance open LLM with long-context understanding, reasoning, and agentic intelligence.",
-   tags:["reasoning","coding"]},
-
-  // ── ~70B ──
-  {id:"z-ai/glm-4.7",name:"GLM-4.7",params:"~70B",pv:70,
-   desc:"Multilingual agentic coding partner by Z.ai. Stronger reasoning, tool use, UI agent skills.",
-   tags:["coding","reasoning"]},
-  {id:"xai/grok-3-mini",name:"Grok 3 Mini",params:"Mini",pv:71,
-   desc:"Open reasoning model with 'thinking' mode. 256K context, INT4 quantization, enhanced tool use.",
-   tags:["reasoning","coding","math"]},
-
-  // ── 17B×128 MoE ──
-  {id:"meta/llama-4-maverick-17b-128e-instruct",name:"Llama 4 Maverick 17B×128E",params:"17B×128 MoE",pv:17*128,
-   desc:"Meta's powerful multimodal, multilingual 128-expert MoE. Vision + language at scale.",
-   tags:["vision","reasoning"]},
-
-  // ── 120B MoE ──
-  {id:"nvidia/nemotron-3-super-120b-a12b",name:"Nemotron 3 Super 120B",params:"120B MoE (12B active)",pv:120,
-   desc:"Hybrid Mamba-Transformer MoE. 1M token context. Agentic reasoning, coding, planning, tool calling.",
-   tags:["reasoning","coding","math"]},
-  {id:"mistralai/mistral-nemotron",name:"Mistral Nemotron ~120B",params:"~120B MoE",pv:120,
-   desc:"Built for agentic workflows: coding, instruction following, function calling, tool use.",
-   tags:["coding","reasoning"]},
-
-  // ── 122B MoE ──
-  {id:"qwen/qwen3.5-122b-a10b",name:"Qwen 3.5 122B",params:"122B MoE (10B active)",pv:122,
-   desc:"MoE LLM for coding, reasoning, multimodal chat. Agent-ready with tool calling support.",
-   tags:["reasoning","coding"]},
-
-  // ── 123B ──
-  {id:"mistralai/devstral-2-123b-instruct-2512",name:"Devstral 2 123B",params:"123B MoE",pv:123,
-   desc:"State-of-the-art open code model. Deep reasoning, 256K context, top coding benchmarks.",
-   tags:["coding","reasoning","math"]},
-  {id:"mistralai/mistral-medium-3-instruct",name:"Mistral Medium 3",params:"~123B",pv:123,
-   desc:"Powerful multimodal for enterprise: software dev, data analysis, complex reasoning tasks.",
-   tags:["vision","reasoning","coding"]},
-
-  // ── ~200B ──
-  {id:"stepfun-ai/step-3.5-flash",name:"Step 3.5 Flash 200B",params:"200B MoE",pv:200,
-   desc:"Open-source reasoning engine, sparse MoE, frontier agentic AI for complex multi-step tasks.",
-   tags:["reasoning","coding"]},
-
-  // ── ~456B ──
-  {id:"minimaxai/minimax-m2.1",name:"MiniMax M2.1",params:"~456B MoE",pv:456,
-   desc:"Multi-language coding, app/web dev, office AI tasks, seamless agent integration.",
-   tags:["coding","reasoning"]},
-
-  // ── ~480B MoE ──
-  {id:"qwen/qwen3-coder-480b-a35b-instruct",name:"Qwen3 Coder 480B",params:"480B MoE (35B active)",pv:480,
-   desc:"Best-in-class agentic coding, browser use, 256K context. Top-ranked on coding + reasoning.",
-   tags:["coding","reasoning","math"]},
-
-  // ── ~675B MoE ──
-  {id:"mistralai/mistral-large-3-675b-instruct-2512",name:"Mistral Large 3 675B",params:"675B MoE",pv:675,
-   desc:"Top-tier general purpose VLM: chat, agentic, instruction following, multimodal at scale.",
-   tags:["vision","reasoning","coding"]},
-  {id:"deepseek-ai/deepseek-v3.1",name:"DeepSeek V3.1",params:"685B MoE",pv:685,
-   desc:"Fast hybrid reasoning, 128K context, strong tool use and function calling. Agentic tasks.",
-   tags:["reasoning","coding"]},
-  {id:"deepseek-ai/deepseek-v3.1-terminus",name:"DeepSeek V3.1 Terminus",params:"685B MoE",pv:685,
-   desc:"Think/Non-Think modes, stronger agents, 128K context, strict function calling support.",
-   tags:["reasoning","coding"]},
-  {id:"deepseek-ai/deepseek-v3.2",name:"DeepSeek V3.2",params:"685B MoE",pv:685,
-   desc:"SOTA reasoning LLM: sparse attention, very long context, integrated agentic tools.",
-   tags:["reasoning","coding","math"]},
-
-  // ── ~1T MoE ──
-  {id:"moonshotai/kimi-k2-thinking",name:"Kimi K2 Thinking ~1T",params:"~1T MoE",pv:1000,
-   desc:"Open reasoning model with 'thinking' mode. 256K context, INT4 quantization, enhanced tool use.",
-   tags:["reasoning","coding","math"]},
-  {id:"moonshotai/kimi-k2-instruct",name:"Kimi K2 Instruct ~1T",params:"~1T MoE",pv:1000,
-   desc:"SOTA open MoE model. Best-in-class reasoning, coding, and agentic capabilities.",
-   tags:["coding","reasoning"]},
-  {id:"moonshotai/kimi-k2-instruct-0905",name:"Kimi K2 Instruct 0905 ~1T",params:"~1T MoE",pv:1000,
-   desc:"Updated Kimi K2: extended context window, enhanced reasoning and tool calling performance.",
-   tags:["reasoning","coding"]},
+const NVIDIA_MODELS=[
+  {id:"google/gemma-3n-e4b-it",name:"Gemma 3N E4B",params:"~4B eff.",pv:4,desc:"Google edge AI: text + audio + image. Stronger than E2B.",tags:["vision","audio","reasoning"]},
+  {id:"bytedance/seed-oss-36b-instruct",name:"Seed OSS 36B",params:"36B",pv:36,desc:"ByteDance open LLM: long-context, reasoning, agentic.",tags:["reasoning","coding"]},
+  {id:"meta/llama-4-maverick-17b-128e-instruct",name:"Llama 4 Maverick 17B×128E",params:"17B×128 MoE",pv:2176,desc:"Meta powerful multimodal multilingual 128-expert MoE.",tags:["vision","reasoning"]},
+  {id:"nvidia/nemotron-3-super-120b-a12b",name:"Nemotron 3 Super 120B",params:"120B MoE (12B active)",pv:120,desc:"Hybrid Mamba-Transformer. 1M context. Agentic reasoning.",tags:["reasoning","coding","math"]},
+  {id:"qwen/qwen3.5-122b-a10b",name:"Qwen 3.5 122B",params:"122B MoE (10B active)",pv:122,desc:"MoE LLM: coding, reasoning, agent-ready.",tags:["reasoning","coding"]},
+  {id:"mistralai/devstral-2-123b-instruct-2512",name:"Devstral 2 123B",params:"123B MoE",pv:123,desc:"SOTA open code model. Deep reasoning, 256K context.",tags:["coding","reasoning","math"]},
+  {id:"minimaxai/minimax-m2.7",name:"MiniMax M2.7",params:"230B",pv:230,desc:"230B model: coding, reasoning, office tasks.",tags:["coding","reasoning"]},
+  {id:"qwen/qwen3-coder-480b-a35b-instruct",name:"Qwen3 Coder 480B",params:"480B MoE (35B active)",pv:480,desc:"Best-in-class agentic coding, 256K context.",tags:["coding","reasoning","math"]},
+  {id:"mistralai/mistral-large-3-675b-instruct-2512",name:"Mistral Large 3 675B",params:"675B MoE",pv:675,desc:"Top-tier VLM: chat, agentic, multimodal at scale.",tags:["vision","reasoning","coding"]}
 ];
 
-const EXTRA_GITHUB_MODELS=[
-  {id:"openai/gpt-5",name:"GPT-5",params:"flagship",pv:500,desc:"OpenAI GPT-5 via GitHub Models.",tags:["reasoning","coding","math"]},
-  {id:"openai/gpt-5-mini",name:"GPT-5 Mini",params:"mini",pv:120,desc:"OpenAI GPT-5 Mini via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"openai/gpt-5-nano",name:"GPT-5 Nano",params:"nano",pv:20,desc:"OpenAI GPT-5 Nano via GitHub Models.",tags:["reasoning"]},
-  {id:"openai/gpt-5-chat",name:"GPT-5 Chat (Preview)",params:"preview",pv:500,desc:"OpenAI GPT-5 Chat preview via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"openai/gpt-5.4",name:"GPT-5.4",params:"flagship",pv:500,desc:"OpenAI GPT-5.4 via GitHub Models.",tags:["reasoning","coding","math"]},
-  {id:"openai/gpt-5.4-mini",name:"GPT-5.4 Mini",params:"mini",pv:120,desc:"OpenAI GPT-5.4 Mini via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"openai/gpt-5.4-nano",name:"GPT-5.4 Nano",params:"nano",pv:20,desc:"OpenAI GPT-5.4 Nano via GitHub Models.",tags:["reasoning"]},
-  {id:"openai/gpt-4.1",name:"GPT-4.1",params:"4.1",pv:200,desc:"OpenAI GPT-4.1 via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"openai/gpt-4.1-mini",name:"GPT-4.1 Mini",params:"4.1 mini",pv:45,desc:"OpenAI GPT-4.1 Mini via GitHub Models.",tags:["reasoning"]},
+const MODELS=[].concat(NVIDIA_MODELS);
+
+const GITHUB_MODELS=[
+  {id:"microsoft/Phi-4-mini-instruct",name:"Phi-4 Mini Instruct",params:"mini",pv:4,desc:"Microsoft Phi-4 Mini Instruct via GitHub Models.",tags:["reasoning"]},
+  {id:"microsoft/Phi-4-mini-reasoning",name:"Phi-4 Mini Reasoning",params:"mini",pv:4.1,desc:"Microsoft Phi-4 Mini Reasoning via GitHub Models.",tags:["reasoning","math"]},
+  {id:"mistral-ai/Ministral-3B",name:"Ministral 3B",params:"3B",pv:3,desc:"Mistral Ministral 3B via GitHub Models.",tags:["reasoning"]},
   {id:"openai/gpt-4.1-nano",name:"GPT-4.1 Nano",params:"4.1 nano",pv:12,desc:"OpenAI GPT-4.1 Nano via GitHub Models.",tags:["reasoning"]},
-  {id:"openai/gpt-4o",name:"GPT-4o",params:"4o",pv:180,desc:"OpenAI GPT-4o via GitHub Models.",tags:["vision","reasoning","coding"]},
+  {id:"openai/gpt-5.4-nano",name:"GPT-5.4 Nano",params:"nano",pv:20,desc:"OpenAI GPT-5.4 Nano via GitHub Models.",tags:["reasoning"]},
   {id:"openai/gpt-4o-mini",name:"GPT-4o Mini",params:"4o mini",pv:25,desc:"OpenAI GPT-4o Mini via GitHub Models.",tags:["vision","reasoning"]},
-  {id:"openai/o1",name:"o1",params:"o1",pv:300,desc:"OpenAI o1 reasoning model via GitHub Models.",tags:["reasoning","math","coding"]},
-  {id:"openai/o1-mini",name:"o1 Mini",params:"o1 mini",pv:80,desc:"OpenAI o1 Mini via GitHub Models.",tags:["reasoning","math"]},
-  {id:"openai/o1-preview",name:"o1 Preview",params:"preview",pv:260,desc:"OpenAI o1 preview via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"openai/o3",name:"o3",params:"o3",pv:340,desc:"OpenAI o3 reasoning model via GitHub Models.",tags:["reasoning","coding","math"]},
+  {id:"openai/gpt-4.1-mini",name:"GPT-4.1 Mini",params:"4.1 mini",pv:45,desc:"OpenAI GPT-4.1 Mini via GitHub Models.",tags:["reasoning"]},
+  {id:"microsoft/Phi-4-reasoning",name:"Phi-4 Reasoning",params:"14B",pv:14,desc:"Microsoft Phi-4 Reasoning via GitHub Models.",tags:["reasoning","math","coding"]},
+  {id:"microsoft/Phi-4",name:"Phi-4",params:"14B",pv:14.1,desc:"Microsoft Phi-4 via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"mistral-ai/Codestral-2501",name:"Codestral 25.01",params:"codestral",pv:22,desc:"Mistral Codestral via GitHub Models.",tags:["coding","reasoning"]},
+  {id:"cohere/cohere-command-r-08-2024",name:"Command R 08-2024",params:"R",pv:35,desc:"Cohere Command R via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"meta/Meta-Llama-3.1-8B-Instruct",name:"Llama-3.1-8B",params:"8B",pv:8,desc:"Meta Llama 3.1 8B via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"meta/Llama-3.2-11B-Vision-Instruct",name:"Llama-3.2-11B Vision",params:"11B",pv:11,desc:"Meta Llama 3.2 vision via GitHub Models.",tags:["vision","reasoning"]},
+  {id:"openai/gpt-4o",name:"GPT-4o",params:"4o",pv:180,desc:"OpenAI GPT-4o via GitHub Models.",tags:["vision","reasoning","coding"]},
+  {id:"openai/gpt-4.1",name:"GPT-4.1",params:"4.1",pv:200,desc:"OpenAI GPT-4.1 via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"ai21/jamba-1.5-large",name:"Jamba 1.5 Large",params:"large",pv:94,desc:"AI21 Jamba 1.5 Large via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"cohere/cohere-command-r-plus-08-2024",name:"Command R+ 08-2024",params:"R+",pv:104,desc:"Cohere Command R+ via GitHub Models.",tags:["reasoning","coding"]},
   {id:"openai/o3-mini",name:"o3 Mini",params:"o3 mini",pv:95,desc:"OpenAI o3 Mini via GitHub Models.",tags:["reasoning","coding"]},
   {id:"openai/o4-mini",name:"o4 Mini",params:"o4 mini",pv:110,desc:"OpenAI o4 Mini via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"deepseek/DeepSeek-V3-0324",name:"DeepSeek-V3-0324",params:"685B",pv:685,desc:"DeepSeek V3 model via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"deepseek/DeepSeek-R1",name:"DeepSeek-R1",params:"R1",pv:690,desc:"DeepSeek R1 reasoning model via GitHub Models.",tags:["reasoning","coding","math"]},
-  {id:"deepseek/DeepSeek-R1-0528",name:"DeepSeek-R1-0528",params:"R1",pv:691,desc:"DeepSeek R1 (0528) via GitHub Models.",tags:["reasoning","coding","math"]},
-  {id:"meta/Meta-Llama-3.1-8B-Instruct",name:"Meta-Llama-3.1-8B-Instruct",params:"8B",pv:8,desc:"Meta Llama 3.1 8B via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"meta/Meta-Llama-3.1-405B-Instruct",name:"Meta-Llama-3.1-405B-Instruct",params:"405B",pv:405,desc:"Meta Llama 3.1 405B via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"meta/Llama-3.2-11B-Vision-Instruct",name:"Llama-3.2-11B-Vision-Instruct",params:"11B",pv:11,desc:"Meta Llama 3.2 vision model via GitHub Models.",tags:["vision","reasoning"]},
-  {id:"meta/Llama-3.2-90B-Vision-Instruct",name:"Llama-3.2-90B-Vision-Instruct",params:"90B",pv:90,desc:"Meta Llama 3.2 90B vision model via GitHub Models.",tags:["vision","reasoning"]},
-  {id:"meta/Llama-3.3-70B-Instruct",name:"Llama-3.3-70B-Instruct",params:"70B",pv:70,desc:"Meta Llama 3.3 70B via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"microsoft/MAI-DS-R1",name:"MAI-DS-R1",params:"R1",pv:140,desc:"Microsoft MAI-DS-R1 via GitHub Models.",tags:["reasoning","coding","math"]},
-  {id:"microsoft/Phi-4",name:"Phi-4",params:"14B",pv:14,desc:"Microsoft Phi-4 via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"microsoft/Phi-4-mini-instruct",name:"Phi-4 Mini Instruct",params:"mini",pv:4,desc:"Microsoft Phi-4 Mini Instruct via GitHub Models.",tags:["reasoning"]},
-  {id:"microsoft/Phi-4-mini-reasoning",name:"Phi-4 Mini Reasoning",params:"mini",pv:4,desc:"Microsoft Phi-4 Mini Reasoning via GitHub Models.",tags:["reasoning","math"]},
-  {id:"microsoft/Phi-4-reasoning",name:"Phi-4 Reasoning",params:"14B",pv:14,desc:"Microsoft Phi-4 Reasoning via GitHub Models.",tags:["reasoning","math","coding"]},
-  {id:"cohere/cohere-command-r-08-2024",name:"Command R 08-2024",params:"R",pv:35,desc:"Cohere Command R via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"cohere/cohere-command-r-plus-08-2024",name:"Command R+ 08-2024",params:"R+",pv:104,desc:"Cohere Command R+ via GitHub Models.",tags:["reasoning","coding"]},
   {id:"cohere/cohere-command-a",name:"Command A",params:"A",pv:111,desc:"Cohere Command A via GitHub Models.",tags:["reasoning","coding"]},
-  {id:"mistral-ai/Codestral-2501",name:"Codestral 25.01",params:"codestral",pv:22,desc:"Mistral Codestral via GitHub Models.",tags:["coding","reasoning"]},
-  {id:"mistral-ai/Ministral-3B",name:"Ministral 3B",params:"3B",pv:3,desc:"Mistral Ministral 3B via GitHub Models.",tags:["reasoning"]},
+  {id:"microsoft/MAI-DS-R1",name:"MAI-DS-R1",params:"R1",pv:140,desc:"Microsoft MAI-DS-R1 via GitHub Models.",tags:["reasoning","coding","math"]},
+  {id:"meta/Llama-3.2-90B-Vision-Instruct",name:"Llama-3.2-90B Vision",params:"90B",pv:90,desc:"Meta Llama 3.2 90B vision via GitHub Models.",tags:["vision","reasoning"]},
+  {id:"meta/Llama-3.3-70B-Instruct",name:"Llama-3.3-70B",params:"70B",pv:70.1,desc:"Meta Llama 3.3 70B via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"meta/Meta-Llama-3.1-405B-Instruct",name:"Llama-3.1-405B",params:"405B",pv:405,desc:"Meta Llama 3.1 405B via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"xai/grok-3-mini",name:"Grok 3 Mini",params:"Mini",pv:71,desc:"xAI Grok 3 Mini via GitHub Models.",tags:["reasoning","coding","math"]},
   {id:"xai/Grok-3",name:"Grok 3",params:"grok",pv:320,desc:"xAI Grok 3 via GitHub Models.",tags:["reasoning","coding","math"]},
-  {id:"ai21/jamba-1.5-large",name:"Jamba 1.5 Large",params:"large",pv:94,desc:"AI21 Jamba 1.5 Large via GitHub Models.",tags:["reasoning","coding"]}
+  {id:"openai/o3",name:"o3",params:"o3",pv:340,desc:"OpenAI o3 reasoning via GitHub Models.",tags:["reasoning","coding","math"]},
+  {id:"deepseek/DeepSeek-V3-0324",name:"DeepSeek-V3-0324",params:"685B",pv:685,desc:"DeepSeek V3 via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"deepseek/DeepSeek-R1",name:"DeepSeek-R1",params:"R1",pv:690,desc:"DeepSeek R1 reasoning via GitHub Models.",tags:["reasoning","coding","math"]},
+  {id:"deepseek/DeepSeek-R1-0528",name:"DeepSeek-R1-0528",params:"R1",pv:691,desc:"DeepSeek R1 (0528) via GitHub Models.",tags:["reasoning","coding","math"]},
+  {id:"openai/gpt-5.4-mini",name:"GPT-5.4 Mini",params:"mini",pv:120,desc:"OpenAI GPT-5.4 Mini via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"openai/gpt-5",name:"GPT-5 (Legacy)",params:"legacy",pv:490,desc:"OpenAI GPT-5 legacy via GitHub Models.",tags:["reasoning","coding","math"]},
+  {id:"openai/gpt-5.4",name:"GPT-5.4",params:"flagship",pv:500,desc:"OpenAI GPT-5.4 via GitHub Models.",tags:["reasoning","coding","math"]}
 ];
 
 // OpenRouter free-tier models
 const OPENROUTER_MODELS=[
-  {id:"nvidia/nemotron-3-super-120b-a12b:free",name:"Nemotron Super 120B (OR free)",params:"120B",pv:120,desc:"NVIDIA Nemotron via OpenRouter — free tier.",tags:["reasoning","coding"]},
-  {id:"openai/gpt-oss-120b:free",name:"GPT OSS 120B (OR free)",params:"120B",pv:121,desc:"OpenAI OSS 120B via OpenRouter — free tier.",tags:["reasoning","coding"]},
-  {id:"openai/gpt-oss-20b:free",name:"GPT OSS 20B (OR free)",params:"20B",pv:20,desc:"OpenAI OSS 20B via OpenRouter — free tier.",tags:["reasoning"]},
-  {id:"z-ai/glm-4.5-air:free",name:"GLM-4.5 Air (OR free)",params:"Air",pv:35,desc:"Z.ai GLM-4.5 Air via OpenRouter — free tier.",tags:["reasoning"]},
-  {id:"deepseek/deepseek-v4-flash:free",name:"DeepSeek V4 Flash (OR free)",params:"Flash",pv:40,desc:"DeepSeek V4 Flash via OpenRouter — free tier.",tags:["reasoning","coding"]},
-  {id:"nvidia/nemotron-3-nano-30b-a3b:free",name:"Nemotron Nano 30B (OR free)",params:"30B",pv:30,desc:"NVIDIA Nemotron Nano via OpenRouter — free tier.",tags:["reasoning"]},
-  {id:"minimax/minimax-m2.5:free",name:"MiniMax M2.5 (OR free)",params:"M2.5",pv:50,desc:"MiniMax M2.5 via OpenRouter — free tier.",tags:["reasoning","coding"]},
-  {id:"google/gemma-4-31b-it:free",name:"Gemma 4 31B (OR free)",params:"31B",pv:31,desc:"Google Gemma 4 31B via OpenRouter — free tier.",tags:["reasoning"]},
-  {id:"google/gemma-4-26b-a4b-it:free",name:"Gemma 4 26B MoE (OR free)",params:"26B MoE",pv:26,desc:"Google Gemma 4 26B MoE via OpenRouter — free tier.",tags:["reasoning"]},
-  {id:"qwen/qwen3-next-80b-a3b-instruct:free",name:"Qwen3 Next 80B (OR free)",params:"80B",pv:80,desc:"Qwen3 Next 80B via OpenRouter — free tier.",tags:["reasoning","coding"]},
-  {id:"meta-llama/llama-3.3-70b-instruct:free",name:"Llama 3.3 70B (OR free)",params:"70B",pv:70,desc:"Meta Llama 3.3 70B via OpenRouter — free tier.",tags:["reasoning"]},
-  {id:"qwen/qwen3-coder:free",name:"Qwen3 Coder (OR free)",params:"Coder",pv:72,desc:"Qwen3 Coder via OpenRouter — free tier.",tags:["coding","reasoning"]},
+  {id:"nvidia/nemotron-3-super-120b-a12b:free",name:"Nemotron Super 120B (free)",params:"120B",pv:120,desc:"NVIDIA Nemotron via OpenRouter — free tier.",tags:["reasoning","coding"]},
+  {id:"openai/gpt-oss-120b:free",name:"GPT OSS 120B (free)",params:"120B",pv:120,desc:"OpenAI OSS 120B via OpenRouter — free tier.",tags:["reasoning","coding"]},
+  {id:"z-ai/glm-4.5-air:free",name:"GLM-4.5 Air (free)",params:"Air",pv:35,desc:"Z.ai GLM-4.5 Air via OpenRouter — free tier.",tags:["reasoning"]},
+  {id:"deepseek/deepseek-v4-flash:free",name:"DeepSeek V4 Flash (free)",params:"Flash",pv:40,desc:"DeepSeek V4 Flash via OpenRouter — free tier.",tags:["reasoning","coding"]},
+  {id:"nvidia/nemotron-3-nano-30b-a3b:free",name:"Nemotron Nano 30B (free)",params:"30B",pv:30,desc:"NVIDIA Nemotron Nano via OpenRouter — free tier.",tags:["reasoning"]},
+  {id:"openai/gpt-oss-20b:free",name:"GPT OSS 20B (free)",params:"20B",pv:20,desc:"OpenAI OSS 20B via OpenRouter — free tier.",tags:["reasoning"]},
+  {id:"minimax/minimax-m2.5:free",name:"MiniMax M2.5 (free)",params:"M2.5",pv:50,desc:"MiniMax M2.5 via OpenRouter — free tier.",tags:["reasoning","coding"]},
+  {id:"google/gemma-4-31b-it:free",name:"Gemma 4 31B (free)",params:"31B",pv:31,desc:"Google Gemma 4 31B via OpenRouter — free tier.",tags:["reasoning"]},
+  {id:"google/gemma-4-26b-a4b-it:free",name:"Gemma 4 26B MoE (free)",params:"26B MoE",pv:26,desc:"Google Gemma 4 26B MoE via OpenRouter — free tier.",tags:["reasoning"]},
+  {id:"qwen/qwen3-next-80b-a3b-instruct:free",name:"Qwen3 Next 80B (free)",params:"80B",pv:80,desc:"Qwen3 Next 80B via OpenRouter — free tier.",tags:["reasoning","coding"]},
+  {id:"meta-llama/llama-3.3-70b-instruct:free",name:"Llama 3.3 70B (free)",params:"70B",pv:70,desc:"Meta Llama 3.3 70B via OpenRouter — free tier.",tags:["reasoning"]},
+  {id:"qwen/qwen3-coder:free",name:"Qwen3 Coder (free)",params:"Coder",pv:72,desc:"Qwen3 Coder via OpenRouter — free tier.",tags:["coding","reasoning"]}
 ];
 
 Array.prototype.push.apply(MODELS,OPENROUTER_MODELS);
 
 const GITHUB_MODEL_IDS=new Set(
-  EXTRA_GITHUB_MODELS.map(function(m){return String(m.id||'').toLowerCase();}).concat(['xai/grok-3-mini'])
+  GITHUB_MODELS.map(function(m){return String(m.id||'').toLowerCase();}).concat(['xai/grok-3-mini'])
 );
 
 const OPENROUTER_MODEL_IDS=new Set(
   OPENROUTER_MODELS.map(function(m){return String(m.id||'').toLowerCase();})
 );
 
-Array.prototype.push.apply(MODELS,EXTRA_GITHUB_MODELS);
+Array.prototype.push.apply(MODELS,GITHUB_MODELS);
 
 // sort ascending
 MODELS.sort((a,b)=>a.pv-b.pv);
