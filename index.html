@@ -2011,15 +2011,32 @@ function fmt(t){
 }
 
 var _typStage = 0;
-var _typTimer = null;
-var _typTexts = [
-  '⦿ Searching web sources...',
-  '⦿ Fetching & extracting pages...',
-  '⦿ Reading content...',
-  '⦿ Building your answer...',
-];
+var _typTimers = [];
 
-function addTyp(){
+function getTypTexts(opts){
+  var webOn=!!(opts && opts.webOn);
+  var ragOn=!!(opts && opts.ragOn);
+  if(webOn){
+    return [
+      '⦿ Searching web sources...',
+      '⦿ Fetching & extracting pages...',
+      '⦿ Reading content...',
+      '⦿ Building your answer...'
+    ];
+  }
+  if(ragOn){
+    return [
+      '⦿ Checking memory...',
+      '⦿ Building your answer...'
+    ];
+  }
+  return [
+    '⦿ Thinking...',
+    '⦿ Building your answer...'
+  ];
+}
+
+function addTyp(opts){
   hwlc();
   var c=document.getElementById('msgs');
   var wrap=document.createElement('div');
@@ -2041,7 +2058,8 @@ function addTyp(){
   var stageLine=document.createElement('div');
   stageLine.id='typStage';
   stageLine.style.cssText='font-family:"Share Tech Mono",monospace;font-size:9px;color:var(--g);letter-spacing:.5px;min-height:14px;';
-  stageLine.textContent=_typTexts[0];
+  var typTexts=getTypTexts(opts);
+  stageLine.textContent=typTexts[0];
 
   // Typing cursor dots
   var dots=document.createElement('div');
@@ -2052,25 +2070,22 @@ function addTyp(){
     dots.appendChild(d);
   }
 
-  // Typewriter effect on stage text
+  // One-shot stage progression. No loop, so the overlay stays subtle.
   _typStage=0;
-  if(_typTimer) clearInterval(_typTimer);
-  _typTimer=setInterval(function(){
-    _typStage=(_typStage+1)%_typTexts.length;
-    var el=document.getElementById('typStage');
-    if(!el){clearInterval(_typTimer);return;}
-    // Typewriter: clear then type char by char
-    el.textContent='';
-    var target=_typTexts[_typStage];
-    var ci=0;
-    var tw=setInterval(function(){
-      var el2=document.getElementById('typStage');
-      if(!el2){clearInterval(tw);return;}
-      el2.textContent+=target[ci]||'';
-      ci++;
-      if(ci>=target.length) clearInterval(tw);
-    },28);
-  },1800);
+  _typTimers.forEach(function(id){ clearTimeout(id); });
+  _typTimers=[];
+  if(typTexts.length>1){
+    _typTimers.push(setTimeout(function advanceStage(){
+      _typStage++;
+      if(_typStage>=typTexts.length) return;
+      var el=document.getElementById('typStage');
+      if(!el) return;
+      el.textContent=typTexts[_typStage];
+      if(_typStage+1<typTexts.length){
+        _typTimers.push(setTimeout(advanceStage, 700));
+      }
+    }, 650));
+  }
 
   bbl.appendChild(stageLine);
   bbl.appendChild(dots);
@@ -2081,7 +2096,8 @@ function addTyp(){
 }
 
 function rmTyp(){
-  if(_typTimer){clearInterval(_typTimer);_typTimer=null;}
+  _typTimers.forEach(function(id){ clearTimeout(id); });
+  _typTimers=[];
   var t=document.getElementById('typEl');
   if(t)t.remove();
 }
@@ -2567,7 +2583,7 @@ async function go(){
       saveBootCache();
     }
   }catch(e){addSys('Warning: user message not saved.',true);} 
-  addTyp();
+  addTyp({webOn:isWebSearchEnabled(), ragOn:isRagEnabledForActiveChat()});
 
   try{
     var promptMsgs=await buildPromptMessages(txt||userDisplayText,m.id,userPayloadContent);
