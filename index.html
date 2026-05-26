@@ -725,8 +725,20 @@ const OPENROUTER_MODEL_IDS=new Set(
 
 Array.prototype.push.apply(MODELS,GITHUB_MODELS);
 
-// sort ascending
-MODELS.sort((a,b)=>a.pv-b.pv);
+function getProviderSortRank(model){
+  var id=String((model && model.id) || '').toLowerCase();
+  if(GITHUB_MODEL_IDS.has(id)) return 0;
+  if(OPENROUTER_MODEL_IDS && OPENROUTER_MODEL_IDS.has(id)) return 1;
+  return 2;
+}
+
+// sort by provider first, then by approximate size
+MODELS.sort(function(a,b){
+  var pa=getProviderSortRank(a);
+  var pb=getProviderSortRank(b);
+  if(pa!==pb) return pa-pb;
+  return Number(a.pv||0)-Number(b.pv||0);
+});
 
 // ── API MODE ──
 let mode = SRV_KEY ? 'env' : 'manual';
@@ -806,7 +818,7 @@ function isLikelyChatModel(m){
   return hasChatTag && isChatCapableModel(m);
 }
 
-const preferredDefaultModelId='moonshotai/kimi-k2-thinking';
+const preferredDefaultModelId='xai/Grok-3';
 const preferredDefaultModelIndex=MODELS.findIndex(function(m){
   return m.id===preferredDefaultModelId && isChatCapableModel(m);
 });
