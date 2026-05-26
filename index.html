@@ -590,6 +590,7 @@ textarea#ti::placeholder{color:var(--textdd)}
     <select id="msel" onchange="onMC()"></select>
   </div>
   <div class="mem-row">
+    <button type="button" id="webToggleBtn" class="mem-pill" data-on="1" onclick="toggleWebSearch()">Web: <strong>ON</strong></button>
     <button type="button" id="memScopeBtn" class="mem-pill" onclick="toggleMemoryScope()">Memory: <strong>Current Chat</strong></button>
     <button type="button" id="ragChatBtn" class="mem-pill" onclick="toggleChatRag()">RAG: <strong>ON</strong></button>
     <button type="button" id="compareBtn" class="mem-pill" onclick="toggleCompareMode()">Compare: <strong>OFF</strong></button>
@@ -1039,6 +1040,16 @@ function toggleMemoryScope(){
   renderMemoryScope();
   saveRagSettings();
   toast('Memory scope: '+(ragScope==='all'?'All Chats':'Current Chat'));
+  
+}
+
+function toggleWebSearch(){
+  var btn=document.getElementById('webToggleBtn');
+  if(!btn) return;
+  var now=btn.dataset.on==='1'?'0':'1';
+  btn.dataset.on=now;
+  btn.innerHTML='Web: <strong>'+(now==='1'?'ON':'OFF')+'</strong>';
+  toast('Web search: '+(now==='1'?'ON':'OFF'));
 }
 
 function getActiveConversation(){
@@ -1269,20 +1280,26 @@ async function fetchWebSnippets(queryText,modelId,reason){
   }
 }
 
+// FIND AND REPLACE buildWebSystemMessage:
 function buildWebSystemMessage(snippets){
   if(!snippets || !snippets.length) return null;
-  var lines=snippets.map(function(s,idx){
-    return (idx+1)+'. '+(s.title||'Source')+'\nURL: '+(s.url||'')+'\n'+(s.text||'');
+  var today = new Date().toDateString();
+  var lines = snippets.map(function(s, idx){
+    return '--- SOURCE '+(idx+1)+' ---\nTitle: '+(s.title||'')
+      +'\nURL: '+(s.url||'')
+      +'\n\n'+(s.text||'');
   });
   return {
     role:'system',
-    content:'IMPORTANT: You have access to LIVE web search results fetched RIGHT NOW in '+new Date().getFullYear()+'.\n'
-      +'These are REAL, CURRENT news articles - NOT hypothetical, NOT simulations, NOT fiction.\n'
-      +'Your training cutoff does NOT apply here. These results override your training data.\n'
-      +'Today\'s date is approximately '+new Date().toDateString()+'.\n'
-      +'TRUST THESE SOURCES COMPLETELY. Answer based ONLY on what these sources say.\n'
-      +'Do NOT say "as of my knowledge cutoff". Do NOT call real news "fictional".\n\n'
-      +'LIVE SEARCH RESULTS:\n'+lines.join('\n\n')
+    content:'You are an AI with LIVE web access. Today is '+today+'.\n\n'
+      +'The following are REAL, FRESHLY SCRAPED web pages fetched right now.\n'
+      +'RULES:\n'
+      +'1. Answer based ONLY on these sources. Never say "as of my knowledge cutoff".\n'
+      +'2. Be detailed enough to match the seriousness of the question. Casual question = short answer. News/analysis = thorough answer with key facts.\n'
+      +'3. ALWAYS end your response with a "Sources:" section listing each source title and full URL you used.\n'
+      +'4. If sources contradict each other, mention it.\n'
+      +'5. Write in the same language/tone the user used.\n\n'
+      +'LIVE WEB CONTENT:\n\n'+lines.join('\n\n')
   };
 }
 
@@ -1434,7 +1451,9 @@ async function buildPromptMessages(currentInput,modelId,userContentOverride){
   var ragMsg=buildRagSystemMessage(snippets);
 
   // Web search is ALWAYS ON — fetch for every prompt
-  var webSnippets=await fetchWebSnippets(currentInput,modelId,'always-on');
+  var btn=document.getElementById('webToggleBtn');
+var webOn=!btn || btn.dataset.on==='1';
+var webSnippets=webOn ? await fetchWebSnippets(currentInput,modelId,'manual') : [];
   lastWebSnippetsUsed=webSnippets.slice(0,6);
   var webMsg=buildWebSystemMessage(webSnippets);
 
@@ -1947,26 +1966,81 @@ function fmt(t){
   return t;
 }
 
+var _typStage = 0;
+var _typTimer = null;
+var _typTexts = [
+  '⦿ Searching web sources...',
+  '⦿ Fetching & extracting pages...',
+  '⦿ Reading content...',
+  '⦿ Building your answer...',
+];
+
 function addTyp(){
   hwlc();
   var c=document.getElementById('msgs');
   var wrap=document.createElement('div');
   wrap.className='typ-wrap';
   wrap.id='typEl';
+
   var av=document.createElement('div');
   av.className='av';
   av.textContent='AI';
   av.style.cssText='background:var(--bg3);border:1px solid var(--border);color:var(--textd);width:26px;height:26px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:8px;flex-shrink:0';
+
   var bbl=document.createElement('div');
   bbl.className='typ-bbl';
-  var txt=document.createElement('div');
-  txt.style.cssText='font-family:"Share Tech Mono",monospace;font-size:9px;color:var(--textd);letter-spacing:.4px';
-  txt.textContent='AI is thinking, rukjao...';
-  bbl.appendChild(txt);
-  wrap.appendChild(av);wrap.appendChild(bbl);
-  c.appendChild(wrap);sc();
+  bbl.style.flexDirection='column';
+  bbl.style.gap='6px';
+  bbl.style.minWidth='220px';
+
+  // Animated stage line
+  var stageLine=document.createElement('div');
+  stageLine.id='typStage';
+  stageLine.style.cssText='font-family:"Share Tech Mono",monospace;font-size:9px;color:var(--g);letter-spacing:.5px;min-height:14px;';
+  stageLine.textContent=_typTexts[0];
+
+  // Typing cursor dots
+  var dots=document.createElement('div');
+  dots.style.cssText='display:flex;gap:4px;align-items:center;margin-top:2px;';
+  for(var i=0;i<3;i++){
+    var d=document.createElement('div');
+    d.className='dot';
+    dots.appendChild(d);
+  }
+
+  // Typewriter effect on stage text
+  _typStage=0;
+  if(_typTimer) clearInterval(_typTimer);
+  _typTimer=setInterval(function(){
+    _typStage=(_typStage+1)%_typTexts.length;
+    var el=document.getElementById('typStage');
+    if(!el){clearInterval(_typTimer);return;}
+    // Typewriter: clear then type char by char
+    el.textContent='';
+    var target=_typTexts[_typStage];
+    var ci=0;
+    var tw=setInterval(function(){
+      var el2=document.getElementById('typStage');
+      if(!el2){clearInterval(tw);return;}
+      el2.textContent+=target[ci]||'';
+      ci++;
+      if(ci>=target.length) clearInterval(tw);
+    },28);
+  },1800);
+
+  bbl.appendChild(stageLine);
+  bbl.appendChild(dots);
+  wrap.appendChild(av);
+  wrap.appendChild(bbl);
+  c.appendChild(wrap);
+  sc();
 }
-function rmTyp(){var t=document.getElementById('typEl');if(t)t.remove();}
+
+function rmTyp(){
+  if(_typTimer){clearInterval(_typTimer);_typTimer=null;}
+  var t=document.getElementById('typEl');
+  if(t)t.remove();
+}
 
 function addSys(txt,err){
   var c=document.getElementById('msgs');

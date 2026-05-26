@@ -158,22 +158,27 @@ async function searchDuckDuckGo(query, numResults = 10) {
   }
 }
 
-// ── Jina Reader — full page text extraction ───────────────────────────────────
+// REPLACE extractUrlText / jinaFetch with this:
 async function jinaFetch(url) {
   try {
     const jinaUrl = `https://r.jina.ai/${url}`;
     const res = await fetchWithTimeout(jinaUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0',
         'Accept': 'text/plain',
-        // Strip nav/ads — Jina supports X-Remove-Selector
-        'X-Remove-Selector': 'nav, footer, header, .ads, .sidebar, .comments, script, style',
-        'X-Target-Selector': 'article, main, .content, .article-body, .post-content, body',
+        'X-Return-Format': 'text',
+        'X-Timeout': '10',
       },
     }, 14000);
     if (!res.ok) return '';
-    const text = await res.text();
-    return preview(text, 1800); // more chars since it's real article content
+    const raw = await res.text();
+    // Strip Jina's own header metadata lines (Title:, URL:, Published:, etc.)
+    const clean = raw
+      .split('\n')
+      .filter(line => !/^(Title|URL|Published|Author|Description|Keywords|Markdown):/i.test(line.trim()))
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+    return preview(clean, 2000);
   } catch {
     return '';
   }
@@ -255,12 +260,12 @@ export default async function handler(req, res) {
 
     // Step 3 — score, diversify, return top `limit`
     const snippets = diversify(fetched, query, limit).map(item => ({
-      title:  item.title,
-      url:    item.url,
-      source: 'serper+jina',
-      text:   item.text,
-      score:  item.score,
-    }));
+  title:  item.title,
+  url:    item.url,
+  source: 'serper+jina',
+  text:   `SOURCE: ${item.title}\nURL: ${item.url}\n\n${item.text}`,
+  score:  item.score,
+}));
 
     return res.status(200).json({ snippets });
 
