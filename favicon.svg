@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="NIM favicon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#031426"/>
+      <stop offset="1" stop-color="#020b18"/>
+    </linearGradient>
+    <linearGradient id="nFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#24eff0"/>
+      <stop offset="1" stop-color="#16d4de"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" fill="#000000"/>
+  <rect x="104" y="104" width="304" height="304" rx="18" fill="url(#bg)"/>
+
+  <g filter="url(#glow)">
+    <path d="M144 128h88l108 152V128h64v256l-86-50-112-158v158h-62z"
+          fill="url(#nFill)" stroke="#53f5ff" stroke-width="6"/>
+  </g>
+
+  <g stroke="#1aaec4" stroke-width="4" stroke-linecap="round" opacity="0.5">
+    <path d="M230 160v20"/>
+    <path d="M256 180v20"/>
+    <path d="M282 200v20"/>
+    <path d="M308 220v20"/>
+    <path d="M334 240v20"/>
+    <circle cx="230" cy="158" r="3" fill="#1aaec4"/>
+    <circle cx="256" cy="178" r="3" fill="#1aaec4"/>
+    <circle cx="282" cy="198" r="3" fill="#1aaec4"/>
+    <circle cx="308" cy="218" r="3" fill="#1aaec4"/>
+    <circle cx="334" cy="238" r="3" fill="#1aaec4"/>
+  </g>
+</svg>
