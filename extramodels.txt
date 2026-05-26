@@ -1,0 +1,44 @@
+{id:"google/gemma-3n-e4b-it",name:"Gemma 3N E4B",params:"~4B eff.",pv:4,desc:"Google edge AI: text + audio + image. Stronger than E2B.",tags:["vision","audio","reasoning"]},
+
+{id:"meta/llama-4-maverick-17b-128e-instruct",name:"Llama 4 Maverick 17B×128E",params:"17B×128 MoE",pv:2176,desc:"Meta powerful multimodal multilingual 128-expert MoE.",tags:["vision","reasoning"]},
+  {id:"nvidia/nemotron-3-super-120b-a12b",name:"Nemotron 3 Super 120B",params:"120B MoE (12B active)",pv:120,desc:"Hybrid Mamba-Transformer. 1M context. Agentic reasoning.",tags:["reasoning","coding","math"]},
+
+  {id:"mistralai/devstral-2-123b-instruct-2512",name:"Devstral 2 123B",params:"123B MoE",pv:123,desc:"SOTA open code model. Deep reasoning, 256K context.",tags:["coding","reasoning","math"]},
+
+
+
+  {id:"microsoft/Phi-4-mini-instruct",name:"Phi-4 Mini Instruct",params:"mini",pv:4,desc:"Microsoft Phi-4 Mini Instruct via GitHub Models.",tags:["reasoning"]},
+  {id:"microsoft/Phi-4-mini-reasoning",name:"Phi-4 Mini Reasoning",params:"mini",pv:4.1,desc:"Microsoft Phi-4 Mini Reasoning via GitHub Models.",tags:["reasoning","math"]},
+  {id:"mistral-ai/Ministral-3B",name:"Ministral 3B",params:"3B",pv:3,desc:"Mistral Ministral 3B via GitHub Models.",tags:["reasoning"]},
+
+{id:"openai/gpt-4o-mini",name:"GPT-4o Mini",params:"4o mini",pv:25,desc:"OpenAI GPT-4o Mini via GitHub Models.",tags:["vision","reasoning"]},
+{id:"microsoft/Phi-4-reasoning",name:"Phi-4 Reasoning",params:"14B",pv:14,desc:"Microsoft Phi-4 Reasoning via GitHub Models.",tags:["reasoning","math","coding"]},
+  {id:"microsoft/Phi-4",name:"Phi-4",params:"14B",pv:14.1,desc:"Microsoft Phi-4 via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"mistral-ai/Codestral-2501",name:"Codestral 25.01",params:"codestral",pv:22,desc:"Mistral Codestral via GitHub Models.",tags:["coding","reasoning"]},
+  {id:"cohere/cohere-command-r-08-2024",name:"Command R 08-2024",params:"R",pv:35,desc:"Cohere Command R via GitHub Models.",tags:["reasoning","coding"]},
+
+  {id:"meta/Meta-Llama-3.1-8B-Instruct",name:"Llama-3.1-8B",params:"8B",pv:8,desc:"Meta Llama 3.1 8B via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"meta/Llama-3.2-11B-Vision-Instruct",name:"Llama-3.2-11B Vision",params:"11B",pv:11,desc:"Meta Llama 3.2 vision via GitHub Models.",tags:["vision","reasoning"]},
+
+  {id:"ai21/jamba-1.5-large",name:"Jamba 1.5 Large",params:"large",pv:94,desc:"AI21 Jamba 1.5 Large via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"cohere/cohere-command-r-plus-08-2024",name:"Command R+ 08-2024",params:"R+",pv:104,desc:"Cohere Command R+ via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"openai/o3-mini",name:"o3 Mini",params:"o3 mini",pv:95,desc:"OpenAI o3 Mini via GitHub Models.",tags:["reasoning","coding"]},
+
+  {id:"cohere/cohere-command-a",name:"Command A",params:"A",pv:111,desc:"Cohere Command A via GitHub Models.",tags:["reasoning","coding"]},
+  {id:"microsoft/MAI-DS-R1",name:"MAI-DS-R1",params:"R1",pv:140,desc:"Microsoft MAI-DS-R1 via GitHub Models.",tags:["reasoning","coding","math"]},
+
+  {id:"meta/Llama-3.2-90B-Vision-Instruct",name:"Llama-3.2-90B Vision",params:"90B",pv:90,desc:"Meta Llama 3.2 90B vision via GitHub Models.",tags:["vision","reasoning"]},
+
+  {id:"meta/Meta-Llama-3.1-405B-Instruct",name:"Llama-3.1-405B",params:"405B",pv:405,desc:"Meta Llama 3.1 405B via GitHub Models.",tags:["reasoning","coding"]},
+
+
+
+  {id:"nvidia/nemotron-3-super-120b-a12b:free",name:"Nemotron Super 120B (free)",params:"120B",pv:120,desc:"NVIDIA Nemotron via OpenRouter — free tier.",tags:["reasoning","coding"]},
+
+  {id:"nvidia/nemotron-3-nano-30b-a3b:free",name:"Nemotron Nano 30B (free)",params:"30B",pv:30,desc:"NVIDIA Nemotron Nano via OpenRouter — free tier.",tags:["reasoning"]},
+  {id:"openai/gpt-oss-20b:free",name:"GPT OSS 20B (free)",params:"20B",pv:20,desc:"OpenAI OSS 20B via OpenRouter — free tier.",tags:["reasoning"]},
+
+  {id:"google/gemma-4-31b-it:free",name:"Gemma 4 31B (free)",params:"31B",pv:31,desc:"Google Gemma 4 31B via OpenRouter — free tier.",tags:["reasoning"]},
+  {id:"google/gemma-4-26b-a4b-it:free",name:"Gemma 4 26B MoE (free)",params:"26B MoE",pv:26,desc:"Google Gemma 4 26B MoE via OpenRouter — free tier.",tags:["reasoning"]},
+
+  {id:"meta-llama/llama-3.3-70b-instruct:free",name:"Llama 3.3 70B (free)",params:"70B",pv:70,desc:"Meta Llama 3.3 70B via OpenRouter — free tier.",tags:["reasoning"]},
