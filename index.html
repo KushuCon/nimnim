@@ -1157,6 +1157,23 @@ function clearBootCache(){
   try{localStorage.removeItem(BOOT_CACHE_KEY);}catch(e){}
 }
 
+function getConversationIdFromUrl(){
+  try{
+    return new URL(window.location.href).searchParams.get('c')||'';
+  }catch(e){
+    return '';
+  }
+}
+
+function setConversationIdInUrl(conversationId, replaceHistory){
+  if(typeof window==='undefined' || !window.history || !window.location) return;
+  var nextUrl=new URL(window.location.href);
+  if(conversationId) nextUrl.searchParams.set('c',conversationId);
+  else nextUrl.searchParams.delete('c');
+  var method=replaceHistory ? 'replaceState' : 'pushState';
+  window.history[method]({},'',nextUrl.toString());
+}
+
 function showBootSkel(){
   var el=document.getElementById('bootSkel');
   if(el) el.classList.remove('hide');
@@ -1190,11 +1207,12 @@ function applyBootPayload(payload){
   renderChatRagToggle();
   renderConversationSelect();
   fillChatFromMessages(payload.messages||[]);
+  setConversationIdInUrl(activeConversationId,true);
   saveBootCache();
 }
 
 async function fetchBootstrap(){
-  var last=activeConversationId||'';
+  var last=getConversationIdFromUrl()||activeConversationId||'';
   return await apiJSON('/api/bootstrap?last_conversation_id='+encodeURIComponent(last));
 }
 
@@ -1640,7 +1658,7 @@ async function deleteConversation(convo){
     if(wasActive){
       clearPendingAttachments();
       if(convList.length){
-        await loadConversation(convList[0].id);
+        await loadConversation(convList[0].id,{replaceHistory:true});
       }else{
         newChat();
       }
@@ -1703,13 +1721,14 @@ async function loadConversations(autoOpen){
   renderConversationSelect();
   saveBootCache();
   if(autoOpen && !activeConversationId && convList.length){
-    await loadConversation(convList[0].id);
+    await loadConversation(convList[0].id,{replaceHistory:true});
   }
 }
 
 async function createConversation(){
   var data=await apiJSON('/api/conversations',{method:'POST',body:{title:'New Chat'}});
   activeConversationId=data.conversation.id;
+  setConversationIdInUrl(activeConversationId,false);
   await loadConversations(false);
   renderConversationSelect();
   return activeConversationId;
@@ -1720,7 +1739,7 @@ async function ensureConversation(){
   return await createConversation();
 }
 
-async function loadConversation(id){
+async function loadConversation(id,opts){
   if(!id)return;
   activeConversationId=id;
   var data=await apiJSON('/api/messages?conversation_id='+encodeURIComponent(id));
@@ -1728,6 +1747,7 @@ async function loadConversation(id){
   renderChatRagToggle();
   renderConversationSelect();
   renderDrawerTagEditor();
+  setConversationIdInUrl(id,!!(opts&&opts.replaceHistory));
   saveBootCache();
 }
 
@@ -1765,8 +1785,25 @@ async function authLogout(){
   setAuthUI();
   resetChatUI();
   closeDrawer();
+  setConversationIdInUrl('',true);
   clearBootCache();
 }
+
+window.addEventListener('popstate',function(){
+  var cid=getConversationIdFromUrl();
+  if(authUser && cid){
+    loadConversation(cid,{replaceHistory:true}).catch(function(){});
+    return;
+  }
+  if(authUser && !cid){
+    activeConversationId=null;
+    newChatRagEnabled=true;
+    renderChatRagToggle();
+    renderConversationSelect();
+    renderDrawerTagEditor();
+    resetChatUI();
+  }
+});
 
 async function initAuth(){
   const started=Date.now();
@@ -2692,6 +2729,7 @@ function newChat(){
   renderChatRagToggle();
   clearPendingAttachments();
   resetChatUI();
+  setConversationIdInUrl('',false);
   var csel=document.getElementById('csel');
   if(csel)csel.value='';
 }
