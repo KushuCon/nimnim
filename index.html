@@ -2588,7 +2588,7 @@ async function go(){
         loadConversations(false).catch(function(){});
         clearPendingAttachments();
       }
-    }
+    
   }catch(e){
     rmTyp();addSys('NETWORK ERROR: '+e.message,true);
   }
