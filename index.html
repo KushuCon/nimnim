@@ -593,7 +593,7 @@ textarea#ti::placeholder{color:var(--textdd)}
     <button type="button" id="webToggleBtn" class="mem-pill" data-on="1" onclick="toggleWebSearch()">Web: <strong>ON</strong></button>
     <button type="button" id="memScopeBtn" class="mem-pill" onclick="toggleMemoryScope()">Memory: <strong>Current Chat</strong></button>
     <button type="button" id="ragChatBtn" class="mem-pill" onclick="toggleChatRag()">RAG: <strong>ON</strong></button>
-    <button type="button" id="compareBtn" class="mem-pill" onclick="toggleCompareMode()">Compare: <strong>OFF</strong></button>
+    
   </div>
   <div id="authGate" class="auth-shell">
     <div class="auth-box" id="authBox">
@@ -689,7 +689,7 @@ const GITHUB_MODELS=[
   {id:"meta/Llama-3.3-70B-Instruct",name:"Llama-3.3-70B",params:"70B",pv:70.1,desc:"Meta Llama 3.3 70B via GitHub Models.",tags:["reasoning","coding"]},
   
   {id:"xai/grok-3-mini",name:"Grok 3 Mini",params:"Mini",pv:71,desc:"xAI Grok 3 Mini via GitHub Models.",tags:["reasoning","coding","math"]},
-  {id:"xai/Grok-3",name:"Grok 3",params:"grok",pv:320,desc:"xAI Grok 3 via GitHub Models.",tags:["reasoning","coding","math"]},
+  {id:"xai/grok-3",name:"Grok 3",params:"grok",pv:320,desc:"xAI Grok 3 via GitHub Models.",tags:["reasoning","coding","math"]},
   {id:"openai/o3",name:"o3",params:"o3",pv:340,desc:"OpenAI o3 reasoning via GitHub Models.",tags:["reasoning","coding","math"]},
   {id:"deepseek/DeepSeek-V3-0324",name:"DeepSeek-V3-0324",params:"685B",pv:685,desc:"DeepSeek V3 via GitHub Models.",tags:["reasoning","coding"]},
   {id:"deepseek/DeepSeek-R1",name:"DeepSeek-R1",params:"R1",pv:690,desc:"DeepSeek R1 reasoning via GitHub Models.",tags:["reasoning","coding","math"]},
@@ -862,7 +862,6 @@ let ragScope='current';
 let globalStats={total:0,tavily:0,models:{}};
 let chatRagToggles={};
 let newChatRagEnabled=true;
-let compareMode=false;
 let pendingImageAttachment=null;
 let pendingPdfAttachment=null;
 let lastWebSnippetsUsed=[];
@@ -1079,17 +1078,7 @@ function normalizeTagList(value){
   return out;
 }
 
-function renderCompareMode(){
-  var btn=document.getElementById('compareBtn');
-  if(!btn) return;
-  btn.innerHTML='Compare: <strong>'+(compareMode?'ON':'OFF')+'</strong>';
-}
 
-function toggleCompareMode(){
-  compareMode=!compareMode;
-  renderCompareMode();
-  toast('Compare mode: '+(compareMode?'ON':'OFF'));
-}
 
 function onDrawerSearchInput(){
   var input=document.getElementById('drawerSearch');
@@ -2122,59 +2111,7 @@ function addSys(txt,err){
   c.appendChild(d);sc();
 }
 
-function getCompareModelSet(baseIndex){
-  var out=[];
-  var seen={};
-  function pushModel(m){
-    if(!m || !isChatCapableModel(m)) return;
-    if(seen[m.id]) return;
-    seen[m.id]=true;
-    out.push(m);
-  }
-  pushModel(MODELS[baseIndex]);
-  for(var i=baseIndex+1;i<MODELS.length && out.length<3;i++) pushModel(MODELS[i]);
-  for(var j=0;j<baseIndex && out.length<3;j++) pushModel(MODELS[j]);
-  return out.slice(0,3);
-}
 
-function addCompareBlock(results, promptText){
-  var c=document.getElementById('msgs');
-  var wrap=document.createElement('div');
-  wrap.className='cmp-wrap';
-  var head=document.createElement('div');
-  head.className='cmp-head';
-  var left=document.createElement('div');
-  var title=document.createElement('div');
-  title.className='cmp-title';
-  title.textContent='MODEL COMPARISON';
-  var sub=document.createElement('div');
-  sub.className='cmp-sub';
-  sub.textContent='Prompt: '+String(promptText||'').slice(0,90);
-  left.appendChild(title);
-  left.appendChild(sub);
-  head.appendChild(left);
-  wrap.appendChild(head);
-
-  var grid=document.createElement('div');
-  grid.className='cmp-grid';
-  (results||[]).forEach(function(result){
-    var card=document.createElement('div');
-    card.className='cmp-card';
-    var model=document.createElement('div');
-    model.className='cmp-model';
-    model.textContent=(result.model && result.model.name ? result.model.name : 'Model') + (result.ok ? '' : ' (error)');
-    var text=document.createElement('div');
-    text.className='cmp-text';
-    text.innerHTML=fmt(result.reply || result.error || '(empty)');
-    card.appendChild(model);
-    card.appendChild(text);
-    grid.appendChild(card);
-  });
-  wrap.appendChild(grid);
-  c.appendChild(wrap);
-  sc();
-  return wrap;
-}
 
 async function togglePinMessage(messageId,pinned){
   if(!activeConversationId) return;
@@ -2599,40 +2536,8 @@ async function go(){
 
   try{
     var promptMsgs=await buildPromptMessages(txt||userDisplayText,m.id,userPayloadContent);
-    if(compareMode){
-      var compareModels=getCompareModelSet(Number(msel.value));
-      var webCitations=lastWebSnippetsUsed.length && isWebSearchEnabled();
-      var compareResults=await Promise.all(compareModels.map(async function(cm){
-        try{
-          var payload={model:cm.id,messages:promptMsgs,max_tokens:4096,temperature:0.7,stream:false};
-          var res=await postChat(payload);
-          var data=await res.json();
-          if(!res.ok){
-            return {model:cm,ok:false,error:'ERROR '+res.status+': '+((data && (data.detail||data.message||data.error))||JSON.stringify(data))};
-          }
-          var reply=(data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content)||'(empty)';
-          reply=sanitizeAssistantOutput(reply);
-          return {model:cm,ok:true,reply:webCitations ? appendSourceCitations(reply,lastWebSnippetsUsed) : reply};
-        }catch(e){
-          return {model:cm,ok:false,error:'NETWORK ERROR: '+e.message};
-        }
-      }));
-    rmTyp();
-      addCompareBlock(compareResults,txt||userDisplayText);
-      for(var i=0;i<compareResults.length;i++){
-        var result=compareResults[i];
-        if(!result.ok) continue;
-        hist.push({role:'assistant',content:result.reply});
-        activeMessagesCache.push({role:'assistant',content:result.reply,model_id:result.model.id,created_at:new Date().toISOString()});
-        try{await saveMessage('assistant',result.reply,result.model.id);}catch(e){addSys('Warning: assistant message not saved.',true);} 
-      }
-      saveBootCache();
-      recCall(m.id).catch(function(){});
-      loadConversations(false).catch(function(){});
-      clearPendingAttachments();
-    }else{
-      var payload={model:m.id,messages:promptMsgs,max_tokens:4096,temperature:0.7,stream:true};
-      var res=await postChat(payload);
+    var payload={model:m.id,messages:promptMsgs,max_tokens:4096,temperature:0.7,stream:true};
+    var res=await postChat(payload);
       rmTyp();
       if(!res.ok){
         var data={};
@@ -2869,7 +2774,6 @@ document.addEventListener('keydown',function(e){
 
 loadRagSettings();
 loadChatRagToggles();
-renderCompareMode();
 initAuth();
 </script>
 </body>
